@@ -1,4 +1,4 @@
-export const BASe_URL =  process.env.REACT_APP_BASe_URL;
+export const BASe_URL =  process.env.VITE_BASe_URL;
 
 //utils/apiPaths.js
 export const API_PATHS = {

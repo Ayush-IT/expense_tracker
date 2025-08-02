@@ -1,14 +1,15 @@
 import axios from 'axios';
 
-import { BASe_URL } from './apiPaths';
+import { BASE_URL } from './apiPaths';
 
 const axiosInstance = axios.create({
-    baseURL: BASe_URL,
+    baseURL: BASE_URL,
     timeout : 10000, // Set a timeout of 10 seconds 
     headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
     },
+    withCredentials: true
 });
 
 //Request interceptor

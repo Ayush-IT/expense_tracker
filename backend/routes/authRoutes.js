@@ -18,14 +18,23 @@ router.post('/login', loginUser);
 
 router.get('/getUser', protect, getUserInfo);
 
-router.post("/upload-image", upload.single('image'), (req, res) => {    
-    if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded.' });
-    }
-    const protocol = req.protocol;  // Use dynamic protocol instead of hardcoding
-    const imageUrl = `${protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    res.status(200).json({ imageUrl });
-});     
+// router.post("/upload-image", upload.single('image'), (req, res) => {    
+//     if (!req.file) {
+//         return res.status(400).json({ message: 'No file uploaded.' });
+//     }
+//     const protocol = req.protocol;  // Use dynamic protocol instead of hardcoding
+//     const imageUrl = `${protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+//     res.status(200).json({ imageUrl });
+// });     
+
+
+router.post("/upload-image", upload.single('image'), (req, res) => {
+  if (!req.file || !req.file.path) {
+    return res.status(400).json({ message: 'No file uploaded.' });
+  }
+  // Cloudinary returns the image URL in req.file.path
+  res.status(200).json({ imageUrl: req.file.path });
+});
 
 module.exports = router;
 

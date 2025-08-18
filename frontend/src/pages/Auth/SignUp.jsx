@@ -30,7 +30,7 @@ const SignUp = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-
+    const emailTrim = email.trim();
 
     let profileImageUrl = "";
 
@@ -39,7 +39,7 @@ const SignUp = () => {
       return;
     }
 
-    if(!validateEmail(email)) {
+    if(!validateEmail(emailTrim)) {
       setError('Please enter a valid email address');
       return;
     }
@@ -64,7 +64,7 @@ const SignUp = () => {
       }
       const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
         fullName, 
-        email,
+        email: emailTrim,
         password,
         profileImageUrl
       });
@@ -86,7 +86,7 @@ const SignUp = () => {
     setError("");
     setInfo("");
     try {
-      await axiosInstance.post(API_PATHS.AUTH.RESEND_VERIFICATION, { email });
+      await axiosInstance.post(API_PATHS.AUTH.RESEND_VERIFICATION, { email: email.trim() });
       setInfo('Verification email has been resent. Please check your inbox.');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Failed to resend verification email.';
@@ -124,8 +124,12 @@ const SignUp = () => {
                   value={email}
                   onChange={({ target }) => setEmail(target.value)}
                   label="Email Address"
-                  type="text"
+                  type="email"
                   placeholder="john@example.com"
+                  autoComplete="email"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
                   className='text-sm lg:text-[14px]'
                 />
                 <div className='col-span-1 sm:col-span-2'>

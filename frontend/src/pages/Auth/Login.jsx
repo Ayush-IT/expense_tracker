@@ -20,8 +20,9 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    const emailTrim = email.trim();
      
-    if(!validateEmail(email)) {
+    if(!validateEmail(emailTrim)) {
       setError('Please enter a valid email address');
       return;
     } 
@@ -36,7 +37,7 @@ const Login = () => {
     //Login API Call
     try {
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
-        email,
+        email: emailTrim,
         password
     });
     const { token, user } = response.data;
@@ -68,8 +69,12 @@ const Login = () => {
              value={email}
               onChange={({ target }) => setEmail(target.value)}
               label="Email Address"
-              type="text"
+              type="email"
               placeholder="jhon@example.com"  
+              autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
              />
             <Input
              value={password}

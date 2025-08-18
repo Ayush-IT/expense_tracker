@@ -79,6 +79,10 @@ const Login = () => {
               placeholder="Minimum 8 characters"  
              />
 
+             <div className='flex justify-end -mt-1 mb-3'>
+               <Link to='/auth/forgot' className='text-[12px] text-primary underline'>Forgot password?</Link>
+             </div>
+
              {error && <p className='text-red-500 text-xs pb-2.5'>{error}</p>}
 
              <button type='submit' className='btn-primary'>LOGIN</button>

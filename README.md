@@ -7,6 +7,8 @@ A full-stack web application built with the MERN stack (MongoDB, Express.js, Rea
 - 🔐 **User Authentication**
 
   - Register/Login with email and password
+  - Email verification on signup (with resend)
+  - Forgot/Reset password via secure email links
   - Profile image upload (now stored securely on Cloudinary)
   - Protected routes
   - JWT token-based authentication
@@ -60,6 +62,7 @@ A full-stack web application built with the MERN stack (MongoDB, Express.js, Rea
 - multer-storage-cloudinary for direct uploads
 - XLSX for Excel file generation
 - Bcrypt for password hashing
+- Nodemailer for transactional emails (verification/reset)
 
 ## Getting Started
 
@@ -96,6 +99,12 @@ CLIENT_URL=http://localhost:5173
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+APP_BASE_URL=http://localhost:8000
+SMTP_HOST=your_smtp_host
+SMTP_PORT=587
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
+SEND_FROM="Expense Tracker <no-reply@yourdomain.com>"
 ```
 
 4. Install Frontend Dependencies
@@ -155,9 +164,13 @@ The application will be available at `http://localhost:5173`
 
 ### Auth Routes
 
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login user
+- `POST /api/v1/auth/register` - Register new user and send verification email
+- `POST /api/v1/auth/login` - Login user (requires verified email)
 - `GET /api/v1/auth/getUser` - Get user info
+- `GET /api/v1/auth/verify-email?token=...&email=...` - Verify email (redirects to frontend on success/failure)
+- `POST /api/v1/auth/resend-verification` - Resend verification email
+- `POST /api/v1/auth/forgot-password` - Send password reset email
+- `POST /api/v1/auth/reset-password` - Reset password using token, email, newPassword
 - `POST /api/v1/auth/upload-image` - Upload profile image (now uploads to Cloudinary)
 
 ### Income Routes
@@ -177,6 +190,25 @@ The application will be available at `http://localhost:5173`
 ### Dashboard Routes
 
 - `GET /api/v1/dashboard` - Get dashboard data
+
+## Auth Flows
+
+### Email Verification
+
+- __Register__: `POST /api/v1/auth/register` creates the user and emails a verification link.
+- __Verify__: `GET /api/v1/auth/verify-email?token=...&email=...` validates the token.
+  - On success: redirects to `${CLIENT_URL}/auth/verified?status=success`.
+  - On failure/expired: redirects to `${CLIENT_URL}/auth/verified?status=failed&reason=invalid_or_expired`.
+- __Resend__: `POST /api/v1/auth/resend-verification` with body `{ email }` to get a new link.
+
+Environment used for links: `APP_BASE_URL` or `CLIENT_URL` (backend falls back appropriately).
+
+### Password Reset
+
+- __Request__: `POST /api/v1/auth/forgot-password` with body `{ email }`.
+  - Sends an email with link to `${CLIENT_URL}/auth/reset?token=...&email=...`.
+- __Reset__: `POST /api/v1/auth/reset-password` with body `{ token, email, newPassword }`.
+  - Token expires in 1 hour. On success returns message `Password has been reset successfully`.
 
 ## Contributing
 

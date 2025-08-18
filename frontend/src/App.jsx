@@ -9,6 +9,9 @@ import {
 
 import Login from './pages/Auth/Login'
 import SignUp from './pages/Auth/SignUp'    
+import Verified from './pages/Auth/Verified'
+import Forgot from './pages/Auth/Forgot'
+import Reset from './pages/Auth/Reset'
 import Home from './pages/Dashboard/Home'
 import Income from './pages/Dashboard/Income'
 import Expense from './pages/Dashboard/Expense'
@@ -24,6 +27,9 @@ const App = () => {
           <Route path="/" element={<Root />} />
           <Route path="/login" exact element={<Login />} />
           <Route path="/signup" exact element={<SignUp />} />
+          <Route path="/auth/verified" element={<Verified />} />
+          <Route path="/auth/forgot" element={<Forgot />} />
+          <Route path="/auth/reset" element={<Reset />} />
           <Route path="/dashboard" exact element={<Home />} />
           <Route path="/income" exact element={<Income />} />
           <Route path="/expense" exact element={<Expense />} />

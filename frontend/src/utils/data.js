@@ -25,6 +25,12 @@ export const SIDE_MENU_DATA = [
         path: "/expense",
     },
     {
+        id: "04",
+        label: "Budgets",
+        icon: LuLayoutDashboard,
+        path: "/budgets",
+    },
+    {
         id: "06",
         label: "Logout",    
         icon: LuLogOut,

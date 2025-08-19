@@ -26,6 +26,12 @@ export const API_PATHS = {
         DELETE_EXPENSE: (expenseID) => `/api/v1/expense/${expenseID}`,
         DOWNLOAD_EXPENSE: "/api/v1/expense/downloadexcel",
      },
+     BUDGET: {
+        CREATE: "/api/v1/budgets",
+        GET: (month, year) => `/api/v1/budgets?month=${month}&year=${year}`,
+        UPDATE: (id) => `/api/v1/budgets/${id}`,
+        DELETE: (id) => `/api/v1/budgets/${id}`,
+     },
      IMAGE: {
         UPLOAD_IMAGE: "/api/v1/auth/upload-image",
      },

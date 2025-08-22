@@ -15,6 +15,7 @@ import ExpenseTransactions from '../../components/Dashboard/ExpenseTransactions'
 import Last30DaysExpenses from '../../components/Dashboard/Last30DaysExpenses';
 import RecentIncomeWithChart from '../../components/Dashboard/RecentIncomeWithChart';
 import RecentIncome from '../../components/Dashboard/RecentIncome';
+import AddTransactionModal from '../../components/AddTransactionModal';
 
 const Home = () => {
   useUserAuth();
@@ -23,6 +24,7 @@ const Home = () => {
 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [openAddTxn, setOpenAddTxn] = useState(false);
 
   const fetchDashboardData = async () => {
     if(loading) return;
@@ -103,6 +105,17 @@ const Home = () => {
           onSeeMore={() => navigate('/income')}
          />
         </div>
+       
+       {/* Floating add button */}
+       <button
+         onClick={() => setOpenAddTxn(true)}
+         className="fixed right-6 bottom-6 w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center shadow-lg z-50"
+         aria-label="Add transaction"
+       >
+         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+       </button>
+
+       <AddTransactionModal isOpen={openAddTxn} onClose={() => setOpenAddTxn(false)} onSuccess={() => fetchDashboardData()} />
     </div>
    </DashboardLayout>
   )

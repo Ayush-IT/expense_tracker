@@ -1,6 +1,6 @@
 import React from 'react'
 import { LuArrowRight } from 'react-icons/lu'
-import TransactionInfoCard from '../Cards/TransactionInfoCard'
+import DashboardTransactionCard from '../Cards/DashboardTransactionCard'
 import moment from 'moment'
 
 const ExpenseTransactions = ({ transactions, onSeeMore }) => {
@@ -13,19 +13,18 @@ const ExpenseTransactions = ({ transactions, onSeeMore }) => {
 
         <button className='card-btn' onClick={onSeeMore}>
           See All <LuArrowRight className='text-base' />
-        </button>   
-      </div>    
+        </button>
+      </div>
 
       <div className='mt-6'>
         {transactions?.slice(0, 4)?.map((expense) => (
-          <TransactionInfoCard
+          <DashboardTransactionCard
             key={expense._id}
             title={expense.category}
             icon={expense.icon}
-            date={moment(expense.date).format('Do MMM YYYY')} 
+            date={moment(expense.date).format('Do MMM YYYY')}
             amount={expense.amount}
             type="expense"
-            hideDeleteBtn
           />
         ))}
       </div>

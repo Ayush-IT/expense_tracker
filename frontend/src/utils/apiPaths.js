@@ -1,39 +1,39 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL;
+export const BASE_URL = import.meta.env.VITE_BASE_URL; // Change this to your backend URL
 
 
 //utils/apiPaths.js
 export const API_PATHS = {
-     AUTH: {
-        LOGIN: "/api/v1/auth/login",
-        REGISTER: "/api/v1/auth/register",
-        GET_USER_INFO: "/api/v1/auth/getUser",
-        RESEND_VERIFICATION: "/api/v1/auth/resend-verification",
-        FORGOT_PASSWORD: "/api/v1/auth/forgot-password",
-        RESET_PASSWORD: "/api/v1/auth/reset-password",
-     },
-     DASHBOARD: {
-        GET_DATA: "/api/v1/dashboard",
-     }, 
-     INCOME: {
-        ADD_INCOME: "/api/v1/income/add",
-        GET_ALL_INCOME: "/api/v1/income/get",
-        DELETE_INCOME: (incomeID) => `/api/v1/income/${incomeID}`,
-        DOWNLOAD_INCOME: "/api/v1/income/downloadexcel",
-     },
-     EXPENSE: {
-        ADD_EXPENSE: "/api/v1/expense/add",
-        GET_ALL_EXPENSE: "/api/v1/expense/get",
-        DELETE_EXPENSE: (expenseID) => `/api/v1/expense/${expenseID}`,
-        DOWNLOAD_EXPENSE: "/api/v1/expense/downloadexcel",
-     },
-     BUDGET: {
-        CREATE: "/api/v1/budgets",
-        GET: (month, year) => `/api/v1/budgets?month=${month}&year=${year}`,
-        UPDATE: (id) => `/api/v1/budgets/${id}`,
-        DELETE: (id) => `/api/v1/budgets/${id}`,
-     },
-     IMAGE: {
-        UPLOAD_IMAGE: "/api/v1/auth/upload-image",
-     },
+   AUTH: {
+      LOGIN: "/api/v1/auth/login",
+      REGISTER: "/api/v1/auth/register",
+      GET_USER_INFO: "/api/v1/auth/getUser",
+      RESEND_VERIFICATION: "/api/v1/auth/resend-verification",
+      FORGOT_PASSWORD: "/api/v1/auth/forgot-password",
+      RESET_PASSWORD: "/api/v1/auth/reset-password",
+   },
+   DASHBOARD: {
+      GET_DATA: "/api/v1/dashboard",
+   },
+   INCOME: {
+      ADD_INCOME: "/api/v1/income/add",
+      GET_ALL_INCOME: "/api/v1/income/get",
+      DELETE_INCOME: (incomeID) => `/api/v1/income/${incomeID}`,
+      DOWNLOAD_INCOME: "/api/v1/income/downloadexcel",
+   },
+   EXPENSE: {
+      ADD_EXPENSE: "/api/v1/expense/add",
+      GET_ALL_EXPENSE: "/api/v1/expense/get",
+      DELETE_EXPENSE: (expenseID) => `/api/v1/expense/${expenseID}`,
+      DOWNLOAD_EXPENSE: "/api/v1/expense/downloadexcel",
+   },
+   BUDGET: {
+      CREATE: "/api/v1/budgets",
+      GET: (month, year) => `/api/v1/budgets?month=${month}&year=${year}`,
+      UPDATE: (id) => `/api/v1/budgets/${id}`,
+      DELETE: (id) => `/api/v1/budgets/${id}`,
+   },
+   IMAGE: {
+      UPLOAD_IMAGE: "/api/v1/auth/upload-image",
+   },
 };
-    
+

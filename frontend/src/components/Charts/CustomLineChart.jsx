@@ -1,10 +1,10 @@
 import React from 'react'
-import {XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart} from 'recharts';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart } from 'recharts';
 
 
 const CustomLineChart = ({ data }) => {
 
- const CustomTooltip = ({ active, payload }) => {
+  const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white shadow-md rounded-lg p-2 border border-gray-300">
@@ -29,8 +29,8 @@ const CustomLineChart = ({ data }) => {
             </linearGradient>
           </defs>
           <CartesianGrid stroke="none" />
-          <XAxis dataKey="month" tick={{fontSize: 12, fill: "#555"}} stroke='none' />
-          <YAxis tick={{fontSize: 12, fill: "#555"}} stroke='none'/>
+          <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#555" }} stroke='none' />
+          <YAxis tick={{ fontSize: 12, fill: "#555" }} stroke='none' />
           <Tooltip content={CustomTooltip} />
           <Area
             type="monotone"
@@ -38,7 +38,7 @@ const CustomLineChart = ({ data }) => {
             stroke="#875cf5"
             fill="url(#incomeGradient)"
             strokeWidth={3}
-            dot={{r: 3, fill: "#ab8df8"}}
+            dot={{ r: 3, fill: "#ab8df8" }}
           />
         </AreaChart>
       </ResponsiveContainer>

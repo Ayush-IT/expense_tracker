@@ -34,17 +34,17 @@ const SignUp = () => {
 
     let profileImageUrl = "";
 
-    if(!fullName) {
+    if (!fullName) {
       setError('Please enter your name');
       return;
     }
 
-    if(!validateEmail(emailTrim)) {
+    if (!validateEmail(emailTrim)) {
       setError('Please enter a valid email address');
       return;
     }
 
-    if(!password) {
+    if (!password) {
       setError('Please enter a password');
       return;
     }
@@ -63,7 +63,7 @@ const SignUp = () => {
         profileImageUrl = imgUploadRes.imageUrl || ""; // Assuming the response contains the image URL
       }
       const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
-        fullName, 
+        fullName,
         email: emailTrim,
         password,
         profileImageUrl
@@ -73,14 +73,14 @@ const SignUp = () => {
       setInfo(response.data?.message || 'Registration successful. Please verify your email.');
     } catch (error) {
       if (error.response && error.response.data.message) {
-          setError(error.response.data.message || 'Sign up failed. Please try again.');
-        } else {
-          setError('An unexpected error occurred. Please try again later.');
-        }
+        setError(error.response.data.message || 'Sign up failed. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
+      }
     } finally {
       setSubmitting(false);
     }
-  } 
+  }
 
   const handleResendVerification = async () => {
     setError("");
@@ -112,7 +112,7 @@ const SignUp = () => {
               </div>
 
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-8'>
-                <Input 
+                <Input
                   value={fullName}
                   onChange={({ target }) => setFullName(target.value)}
                   label="Full Name"

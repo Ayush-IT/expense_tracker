@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 
 import Login from './pages/Auth/Login'
-import SignUp from './pages/Auth/SignUp'    
+import SignUp from './pages/Auth/SignUp'
 import Verified from './pages/Auth/Verified'
 import Forgot from './pages/Auth/Forgot'
 import Reset from './pages/Auth/Reset'
@@ -23,32 +23,31 @@ const App = () => {
   return (
     <UserProvider>
       <div>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Root />} />
-          <Route path="/login" exact element={<Login />} />
-          <Route path="/signup" exact element={<SignUp />} />
-          <Route path="/auth/verified" element={<Verified />} />
-          <Route path="/auth/forgot" element={<Forgot />} />
-          <Route path="/auth/reset" element={<Reset />} />
-          <Route path="/dashboard" exact element={<Home />} />
-          <Route path="/income" exact element={<Income />} />
-          <Route path="/expense" exact element={<Expense />} />
-          <Route path="/budgets" exact element={<Budgets />} />
-        </Routes>
-      </Router>
-     </div>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Root />} />
+            <Route path="/login" exact element={<Login />} />
+            <Route path="/signup" exact element={<SignUp />} />
+            <Route path="/auth/verified" element={<Verified />} />
+            <Route path="/auth/forgot" element={<Forgot />} />
+            <Route path="/auth/reset" element={<Reset />} />
+            <Route path="/dashboard" exact element={<Home />} />
+            <Route path="/income" exact element={<Income />} />
+            <Route path="/expense" exact element={<Expense />} />
+            <Route path="/budgets" exact element={<Budgets />} />
+          </Routes>
+        </Router>
+      </div>
 
-     <Toaster
-      toastOptions={{
-        className: 'bg-white text-black',
-        style: {
-          fontSize: '13px',
-        },
-      }}
-     />
+      <Toaster
+        toastOptions={{
+          className: 'bg-white text-black',
+          style: {
+            fontSize: '13px',
+          },
+        }}
+      />
     </UserProvider>
-    
   );
 };
 

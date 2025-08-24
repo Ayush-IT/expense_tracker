@@ -13,14 +13,14 @@ export const SIDE_MENU_DATA = [
         path: "/dashboard",
     },
     {
-        id: "02",   
+        id: "02",
         label: "Income",
         icon: LuWalletMinimal,
         path: "/income",
     },
     {
         id: "03",
-        label: "Expense",   
+        label: "Expense",
         icon: LuHandCoins,
         path: "/expense",
     },
@@ -32,7 +32,7 @@ export const SIDE_MENU_DATA = [
     },
     {
         id: "06",
-        label: "Logout",    
+        label: "Logout",
         icon: LuLogOut,
         path: "/logout",
     },

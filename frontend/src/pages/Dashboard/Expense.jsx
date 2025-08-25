@@ -137,6 +137,7 @@ const Expense = () => {
           });
         }}
         onDownload={handleDownloadExpenseDetails}
+  onAdd={() => setOpenAddExpenseModal(true)}
        />
       </div>
       

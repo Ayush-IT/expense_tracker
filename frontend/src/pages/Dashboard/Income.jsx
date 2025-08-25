@@ -131,6 +131,7 @@ const Income = () => {
            setOpenDeleteAlert({show: true, data: id});
          }}
          onDownload={handleDownloadIncomeDetails}
+         onAdd={() => setOpenAddIncomeModal(true)}
         />
       </div>   
 

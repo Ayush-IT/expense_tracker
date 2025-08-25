@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 
 import { LuDownload } from 'react-icons/lu'
+import { LuInbox } from 'react-icons/lu'
+import EmptyStateCard from '../EmptyStateCard'
 import moment from 'moment'
 import TransactionInfoCard from '../Cards/TransactionInfoCard'
 import Modal from '../Modal'
 
-const IncomeList = ({ transactions, onDelete, onDownload }) => {
+const IncomeList = ({ transactions, onDelete, onDownload, onAdd }) => {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const handleDownloadConfirm = () => {
@@ -23,19 +25,29 @@ const IncomeList = ({ transactions, onDelete, onDownload }) => {
         </button>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-clos-2'>
-        {transactions?.map((income) => (
-          <TransactionInfoCard
-            key={income._id}
-            title={income.source}
-            icon={income.icon}
-            date={moment(income.date).format('Do MMM YYYY')}
-            amount={income.amount}
-            type="income"
-            onDelete={() => onDelete(income._id)}
-          />
-        ))}
-      </div>
+      {(!transactions || transactions.length === 0) ? (
+        <EmptyStateCard
+          icon={<LuInbox className='text-2xl text-purple-600' />}
+          title={'No income yet'}
+          subtitle={'You haven\'t added any income. Create your first record to get started.'}
+          actionLabel={'Add Income'}
+          onAction={onAdd}
+        />
+      ) : (
+        <div className='grid grid-cols-1 md:grid-clos-2'>
+          {transactions.map((income) => (
+            <TransactionInfoCard
+              key={income._id}
+              title={income.source}
+              icon={income.icon}
+              date={moment(income.date).format('Do MMM YYYY')}
+              amount={income.amount}
+              type="income"
+              onDelete={() => onDelete(income._id)}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Download Confirmation Modal */}
       <Modal

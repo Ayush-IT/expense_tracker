@@ -52,11 +52,15 @@ router.get('/reset', (req, res) => {
 
 
 router.post("/upload-image", upload.single('image'), (req, res) => {
-  if (!req.file || !req.file.path) {
+  if (!req.file) {
     return res.status(400).json({ message: 'No file uploaded.' });
   }
-  // Cloudinary returns the image URL in req.file.path
-  res.status(200).json({ imageUrl: req.file.path });
+  // Cloudinary returns the image URL on file.path or file.secure_url
+  const imageUrl = req.file.path || req.file.secure_url;
+  res.status(200).json({
+    imageUrl,
+    profileImageUrl: imageUrl,
+  });
 });
 
 module.exports = router;

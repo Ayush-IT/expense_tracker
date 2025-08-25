@@ -10,6 +10,7 @@ const incomeRoutes = require("./routes/incomeRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 
 const app = express();
 
@@ -31,8 +32,8 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Uploads static folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Note: Local uploads folder no longer needed as images are stored on Cloudinary
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // API Routes
 app.use("/api/v1/auth", authRoutes);
@@ -40,6 +41,7 @@ app.use("/api/v1/income", incomeRoutes);
 app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/budgets", budgetRoutes);
+app.use("/api/v1/profile", profileRoutes);
 
 // Start server only after DB is connected
 const startServer = async () => {

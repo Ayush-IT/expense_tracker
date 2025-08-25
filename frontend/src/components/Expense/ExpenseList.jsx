@@ -3,8 +3,10 @@ import React, { useState } from 'react'
 import TransactionInfoCard from '../Cards/TransactionInfoCard'
 import { LuDownload } from 'react-icons/lu'
 import Modal from '../Modal'
+import EmptyStateCard from '../EmptyStateCard'
+import { LuInbox } from 'react-icons/lu'
 
-const ExpenseList = ({ transactions, onDelete, onDownload }) => {
+const ExpenseList = ({ transactions, onDelete, onDownload, onAdd }) => {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const handleDownloadConfirm = () => {
@@ -22,20 +24,29 @@ const ExpenseList = ({ transactions, onDelete, onDownload }) => {
         </button>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2'>
-        {transactions?.map((expense) => (
-          <TransactionInfoCard
-            key={expense._id}
-            title={expense.category}
-            icon={expense.icon}
-            date={moment(expense.date).format('Do MMM YYYY')}
-            amount={expense.amount}
-            type="expense"
-            onDelete={() => onDelete(expense._id)}
-          />
-        ))}
-
-      </div>
+      {(!transactions || transactions.length === 0) ? (
+        <EmptyStateCard
+          icon={<LuInbox className='text-2xl text-purple-600' />}
+          title={'No expenses yet'}
+          subtitle={'You haven\'t added any expense. Record your first transaction to see insights.'}
+          actionLabel={'Add Expense'}
+          onAction={onAdd}
+        />
+      ) : (
+        <div className='grid grid-cols-1 md:grid-cols-2'>
+          {transactions.map((expense) => (
+            <TransactionInfoCard
+              key={expense._id}
+              title={expense.category}
+              icon={expense.icon}
+              date={moment(expense.date).format('Do MMM YYYY')}
+              amount={expense.amount}
+              type="expense"
+              onDelete={() => onDelete(expense._id)}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Download Confirmation Modal */}
       <Modal

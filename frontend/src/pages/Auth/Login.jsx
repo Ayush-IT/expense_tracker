@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 
 import AuthLayout from '../../components/layouts/AuthLayout'
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,6 +17,59 @@ const Login = () => {
   const { updateUser } = useContext(UserContext);
 
   const navigate = useNavigate();
+  const googleBtnRef = useRef(null);
+
+  // Google Identity Services
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) return; // silently no-op if not configured
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      try {
+        /* global google */
+        if (window.google && window.google.accounts && googleBtnRef.current) {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (response) => {
+              const idToken = response?.credential;
+              if (!idToken) return;
+              try {
+                const res = await axiosInstance.post(API_PATHS.AUTH.GOOGLE, { idToken });
+                const { token, user } = res.data || {};
+                if (token) {
+                  localStorage.setItem('token', token);
+                  updateUser(user);
+                  navigate('/dashboard');
+                }
+              } catch (e) {
+                setError(e?.response?.data?.message || 'Google sign-in failed');
+              }
+            },
+            ux_mode: 'popup',
+          });
+
+          window.google.accounts.id.renderButton(googleBtnRef.current, {
+            theme: 'outline',
+            size: 'large',
+            text: 'continue_with',
+            width: 320,
+          });
+        }
+      } catch (e) {
+        // ignore render errors
+      }
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // best-effort cleanup
+      if (script && script.parentNode) script.parentNode.removeChild(script);
+    };
+  }, [navigate, updateUser]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -91,6 +144,16 @@ const Login = () => {
              {error && <p className='text-red-500 text-xs pb-2.5'>{error}</p>}
 
              <button type='submit' className='btn-primary'>LOGIN</button>
+
+             <div className='my-3 flex items-center'>
+               <div className='h-px bg-slate-200 flex-1' />
+               <span className='px-3 text-xs text-slate-500'>OR</span>
+               <div className='h-px bg-slate-200 flex-1' />
+             </div>
+
+             <div className='flex justify-center'>
+               <div ref={googleBtnRef} />
+             </div>
 
              <p className='text-[13px] text-slate-800 mt-3'>
               Don't have an account? {" "}

@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
 const { sendEmail, buildVerificationEmail, buildPasswordResetEmail } = require('../utils/sendEmail');
+const { OAuth2Client } = require('google-auth-library');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
 const generateToken = (id) => {
@@ -271,3 +274,56 @@ exports.getUserInfo = async (req, res) => {
         res.status(500).json({ message: 'Error fetching user info', error: error.message });
     }
 }; 
+
+// Google OAuth Login: verify ID token from Google Identity Services and issue our JWT
+exports.googleLogin = async (req, res) => {
+    const { idToken } = req.body || {};
+    if (!idToken) {
+        return res.status(400).json({ message: 'idToken is required' });
+    }
+
+    try {
+        // Verify token with Google
+        const ticket = await googleClient.verifyIdToken({
+            idToken,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        const email = (payload?.email || '').toLowerCase();
+        const fullName = payload?.name || 'Google User';
+        const picture = payload?.picture || null;
+        const emailVerified = !!payload?.email_verified;
+
+        if (!email || !emailVerified) {
+            return res.status(400).json({ message: 'Google account email not verified' });
+        }
+
+        // Upsert user
+        let user = await User.findOne({ email });
+        if (!user) {
+            // Create a random password (never used) to satisfy schema requirements
+            const randomPassword = crypto.randomBytes(16).toString('hex');
+            user = await User.create({
+                fullName,
+                email,
+                password: randomPassword,
+                profileImageUrl: picture,
+                isVerified: true,
+            });
+        } else {
+            // Ensure verified and update basic profile fields if empty
+            if (!user.isVerified) user.isVerified = true;
+            if (!user.profileImageUrl && picture) user.profileImageUrl = picture;
+            if (!user.fullName && fullName) user.fullName = fullName;
+            await user.save({ validateBeforeSave: false });
+        }
+
+        return res.status(200).json({
+            id: user._id,
+            user,
+            token: generateToken(user._id),
+        });
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid Google token', error: err.message });
+    }
+};

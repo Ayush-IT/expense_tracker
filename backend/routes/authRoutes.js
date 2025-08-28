@@ -10,6 +10,7 @@ const{
     resendVerification,
     forgotPassword,
     resetPassword,
+    googleLogin,
 }= require('../controllers/authController');
 const upload = require('../middleware/uploadMiddleware');
 
@@ -19,6 +20,9 @@ const router = express.Router();
 router.post('/register', registerUser);
 
 router.post('/login', loginUser);
+
+// Google OAuth
+router.post('/google', googleLogin);
 
 router.get('/getUser', protect, getUserInfo);
 

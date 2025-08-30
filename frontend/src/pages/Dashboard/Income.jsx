@@ -23,6 +23,10 @@ const Income = () => {
 
 
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
+  const [openEditIncomeModal, setOpenEditIncomeModal] = useState({
+    show: false,
+    data: null,
+  });
 
   //Get All Income Details
   const fetchIncomeDetails = async () => {
@@ -41,6 +45,27 @@ const Income = () => {
         setLoading(false);
       }
   };
+
+ // Handle Update Income
+ const handleUpdateIncome = async (updated) => {
+  if (!openEditIncomeModal.data) return;
+  const { source, amount, date, icon } = updated;
+
+  // Optional minimal validation
+  if (!source?.trim()) return toast.error('Source is required');
+  if (!amount || isNaN(amount) || Number(amount) <= 0) return toast.error('Amount should be a valid number greater than 0');
+  if (!date) return toast.error('Date is required');
+
+  try {
+    await axiosInstance.put(API_PATHS.INCOME.UPDATE_INCOME(openEditIncomeModal.data._id), { source, amount, date, icon });
+    toast.success('Income updated successfully');
+    setOpenEditIncomeModal({ show: false, data: null });
+    fetchIncomeDetails();
+  } catch (error) {
+    console.error('Failed to update income:', error);
+    toast.error('Failed to update income');
+  }
+ };
 
  //Handle Add Income
  const handleAddIncome = async (income) => {
@@ -132,6 +157,14 @@ const Income = () => {
          }}
          onDownload={handleDownloadIncomeDetails}
          onAdd={() => setOpenAddIncomeModal(true)}
+         onEdit={(income) => {
+           // Pre-format date for input type=date
+           const formatted = {
+             ...income,
+             date: income?.date ? new Date(income.date).toISOString().slice(0, 10) : '',
+           };
+           setOpenEditIncomeModal({ show: true, data: formatted });
+         }}
         />
       </div>   
 
@@ -141,6 +174,18 @@ const Income = () => {
         title="Add Income"
       >
         <AddIncomeForm onAddIncome={handleAddIncome} />
+      </Modal>
+
+      <Modal
+        isOpen={openEditIncomeModal.show}
+        onClose={() => setOpenEditIncomeModal({ show: false, data: null })}
+        title="Edit Income"
+      >
+        <AddIncomeForm
+          initialValues={openEditIncomeModal.data}
+          onSubmit={handleUpdateIncome}
+          submitLabel="Save Changes"
+        />
       </Modal>
 
       <Modal

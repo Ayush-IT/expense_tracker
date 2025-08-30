@@ -25,6 +25,10 @@ const Expense = () => {
   }); 
 
   const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
+  const [openEditExpenseModal, setOpenEditExpenseModal] = useState({
+    show: false,
+    data: null,
+  });
 
 
   //Get All Expense Details
@@ -44,6 +48,26 @@ const Expense = () => {
         setLoading(false);
       }
   };
+
+ // Handle Update Expense
+ const handleUpdateExpense = async (updated) => {
+  if (!openEditExpenseModal.data) return;
+  const { category, amount, date, icon } = updated;
+
+  if (!category?.trim()) return toast.error('Category is required');
+  if (!amount || isNaN(amount) || Number(amount) <= 0) return toast.error('Amount should be a valid number greater than 0');
+  if (!date) return toast.error('Date is required');
+
+  try {
+    await axiosInstance.put(API_PATHS.EXPENSE.UPDATE_EXPENSE(openEditExpenseModal.data._id), { category, amount, date, icon });
+    toast.success('Expense updated successfully');
+    setOpenEditExpenseModal({ show: false, data: null });
+    fetchExpenseDetails();
+  } catch (error) {
+    console.error('Failed to update expense:', error);
+    toast.error('Failed to update expense');
+  }
+ };
 
  //Handle Add Expense
  const handleAddExpense = async (expense) => {
@@ -137,7 +161,14 @@ const Expense = () => {
           });
         }}
         onDownload={handleDownloadExpenseDetails}
-  onAdd={() => setOpenAddExpenseModal(true)}
+        onAdd={() => setOpenAddExpenseModal(true)}
+        onEdit={(expense) => {
+          const formatted = {
+            ...expense,
+            date: expense?.date ? new Date(expense.date).toISOString().slice(0, 10) : '',
+          };
+          setOpenEditExpenseModal({ show: true, data: formatted });
+        }}
        />
       </div>
       
@@ -148,6 +179,18 @@ const Expense = () => {
       >
         <AddExpenseForm
           onAddExpense={handleAddExpense}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={openEditExpenseModal.show}
+        onClose={() => setOpenEditExpenseModal({ show: false, data: null })}
+        title="Edit Expense"
+      >
+        <AddExpenseForm
+          initialValues={openEditExpenseModal.data}
+          onSubmit={handleUpdateExpense}
+          submitLabel="Save Changes"
         />
       </Modal>
 

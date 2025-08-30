@@ -76,7 +76,8 @@ import {
   LuUtensils,
   LuTrendingUp,
   LuTrendingDown,
-  LuTrash2
+  LuTrash2,
+  LuPencil
 } from 'react-icons/lu';
 
 
@@ -88,7 +89,8 @@ const TransactionInfoCard = (
     amount,
     type,
     hideDeleteBtn,
-    onDelete
+    onDelete,
+    onEdit
   }
 ) => {
 
@@ -120,10 +122,21 @@ const TransactionInfoCard = (
           </div>
         </div>
 
-        <div className='flex flex-col items-end gap-2 md:flex-row md:items-center'>
+        <div className='flex flex-row items-start gap-2 md:flex-row md:items-center'>
+          {onEdit && (
+            <button
+              className='text-gray-400 hover:text-blue-600 transition-opacity cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 w-9 h-9 flex items-center justify-center mt-0 md:mt-0'
+              onClick={onEdit}
+              aria-label='Edit transaction'
+              style={{ minWidth: 36, minHeight: 36 }}
+            >
+              <LuPencil size={18} />
+            </button>
+          )}
+
           {!hideDeleteBtn && (
             <button
-              className='text-gray-400 hover:text-red-500 transition-opacity cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 w-9 h-9 flex items-center justify-center mt-2 md:mt-0'
+              className='text-gray-400 hover:text-red-500 transition-opacity cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 w-9 h-9 flex items-center justify-center mt-0 md:mt-0'
               onClick={onDelete}
               aria-label='Delete transaction'
               style={{ minWidth: 36, minHeight: 36 }}

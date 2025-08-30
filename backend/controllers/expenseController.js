@@ -80,6 +80,52 @@ exports.deleteExpense = async (req, res) => {
     }
 }; 
 
+// Update an existing expense
+exports.updateExpense = async (req, res) => {
+    const userId = req.user._id;
+    const expenseId = req.params.id;
+
+    try {
+        const { icon, category, amount, date } = req.body;
+
+        const update = {};
+        if (icon !== undefined) update.icon = icon;
+        if (category !== undefined) update.category = category;
+        if (amount !== undefined) update.amount = amount;
+        if (date !== undefined) update.date = new Date(date);
+
+        if (Object.keys(update).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No fields provided to update'
+            });
+        }
+
+        const expense = await Expense.findOneAndUpdate(
+            { _id: expenseId, userId },
+            { $set: update },
+            { new: true }
+        );
+
+        if (!expense) {
+            return res.status(404).json({
+                success: false,
+                message: 'Expense not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: expense
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Server error',
+            error: error.message
+        });
+    }
+};
 exports.downloadExpenseExcel = async (req, res) => {
     const userId = req.user._id;
 

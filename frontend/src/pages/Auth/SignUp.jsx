@@ -1,13 +1,14 @@
 import React, { useContext, useState } from 'react'
 
 import AuthLayout from '../../components/layouts/AuthLayout'
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Input from '../../components/Inputs/Input';
 import { validateEmail } from '../../utils/helper';
 import ProfilePhotoSelector from '../../components/Inputs/ProfilePhotoSelector';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { UserContext } from '../../context/UserContext';
+import Alert from '../../components/Alert';
 import uploadImage from '../../utils/uploadImage';
 
 
@@ -24,9 +25,7 @@ const SignUp = () => {
   const [pendingVerify, setPendingVerify] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const { updateUser } = useContext(UserContext);
-
-  const navigate = useNavigate();
+  useContext(UserContext); // keep context initialisation for future usage
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -144,7 +143,7 @@ const SignUp = () => {
                 </div>
               </div>
 
-              {error && <p className='text-red-500 text-xs pt-2'>{error}</p>}
+              {error && <div className='mb-3'><Alert type='error' message={error} autoDismiss={5000} onClose={() => setError(null)} /></div>}
 
               <button
                 type='submit'
@@ -160,7 +159,7 @@ const SignUp = () => {
               </p>
             </form>
           </>
-        ) : (
+    ) : (
           <div className='w-full max-w-md mx-auto text-center'>
             <h3 className='text-xl font-semibold text-black'>
               Verify your email
@@ -171,8 +170,8 @@ const SignUp = () => {
             <p className='text-sm text-slate-700'>
               Please check your inbox and click the link to activate your account.
             </p>
-            {info && <p className='text-green-600 text-xs mt-3'>{info}</p>}
-            {error && <p className='text-red-500 text-xs mt-2'>{error}</p>}
+            {info && <div className='mb-3'><Alert type='success' message={info} autoDismiss={5000} onClose={() => setInfo('')} /></div>}
+            {error && <div className='mb-3'><Alert type='error' message={error} autoDismiss={5000} onClose={() => setError(null)} /></div>}
             <div className='flex items-center justify-center gap-3 mt-5'>
               <button onClick={handleResendVerification} className='btn-secondary text-sm'>
                 Resend verification email

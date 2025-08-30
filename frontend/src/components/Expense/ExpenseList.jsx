@@ -6,7 +6,7 @@ import Modal from '../Modal'
 import EmptyStateCard from '../EmptyStateCard'
 import { LuInbox } from 'react-icons/lu'
 
-const ExpenseList = ({ transactions, onDelete, onDownload, onAdd }) => {
+const ExpenseList = ({ transactions, onDelete, onDownload, onAdd, onEdit }) => {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const handleDownloadConfirm = () => {
@@ -43,6 +43,7 @@ const ExpenseList = ({ transactions, onDelete, onDownload, onAdd }) => {
               amount={expense.amount}
               type="expense"
               onDelete={() => onDelete(expense._id)}
+              onEdit={onEdit ? () => onEdit(expense) : undefined}
             />
           ))}
         </div>

@@ -7,7 +7,7 @@ import moment from 'moment'
 import TransactionInfoCard from '../Cards/TransactionInfoCard'
 import Modal from '../Modal'
 
-const IncomeList = ({ transactions, onDelete, onDownload, onAdd }) => {
+const IncomeList = ({ transactions, onDelete, onDownload, onAdd, onEdit }) => {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const handleDownloadConfirm = () => {
@@ -44,6 +44,7 @@ const IncomeList = ({ transactions, onDelete, onDownload, onAdd }) => {
               amount={income.amount}
               type="income"
               onDelete={() => onDelete(income._id)}
+              onEdit={onEdit ? () => onEdit(income) : undefined}
             />
           ))}
         </div>

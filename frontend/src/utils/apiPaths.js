@@ -1,4 +1,4 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL; // Change this to your backend URL
+export const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
 //utils/apiPaths.js
@@ -20,12 +20,14 @@ export const API_PATHS = {
       GET_ALL_INCOME: "/api/v1/income/get",
       DELETE_INCOME: (incomeID) => `/api/v1/income/${incomeID}`,
       DOWNLOAD_INCOME: "/api/v1/income/downloadexcel",
+      UPDATE_INCOME: (incomeID) => `/api/v1/income/${incomeID}`,
    },
    EXPENSE: {
       ADD_EXPENSE: "/api/v1/expense/add",
       GET_ALL_EXPENSE: "/api/v1/expense/get",
       DELETE_EXPENSE: (expenseID) => `/api/v1/expense/${expenseID}`,
       DOWNLOAD_EXPENSE: "/api/v1/expense/downloadexcel",
+      UPDATE_EXPENSE: (expenseID) => `/api/v1/expense/${expenseID}`,
    },
    BUDGET: {
       CREATE: "/api/v1/budgets",

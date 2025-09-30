@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { UserContext } from '../../context/UserContext';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
@@ -15,7 +15,17 @@ const ProfileEditForm = ({ user, onCancel, onSuccess }) => {
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
+        timezone: user?.timezone || 'Asia/Kolkata',
     });
+    const browserTz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata', []);
+    const localTimePreview = useMemo(() => {
+        try {
+            const fmt = new Intl.DateTimeFormat('en-IN', { timeZone: formData.timezone || 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+            return fmt.format(new Date());
+        } catch {
+            return '';
+        }
+    }, [formData.timezone]);
     const [profileImage, setProfileImage] = useState(null);
     const [showPasswordFields, setShowPasswordFields] = useState(false);
 
@@ -71,6 +81,7 @@ const ProfileEditForm = ({ user, onCancel, onSuccess }) => {
             const updateData = {
                 fullName: formData.fullName.trim(),
                 email: formData.email.trim().toLowerCase(),
+                timezone: formData.timezone || 'Asia/Kolkata',
             };
 
             if (showPasswordFields && formData.newPassword) {
@@ -116,6 +127,7 @@ const ProfileEditForm = ({ user, onCancel, onSuccess }) => {
             currentPassword: '',
             newPassword: '',
             confirmPassword: '',
+            timezone: user?.timezone || 'Asia/Kolkata',
         });
         setProfileImage(null);
         setShowPasswordFields(false);
@@ -189,6 +201,26 @@ const ProfileEditForm = ({ user, onCancel, onSuccess }) => {
                                         placeholder="Enter your email"
                                         required
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        Timezone
+                                    </label>
+                                    <select
+                                        name="timezone"
+                                        value={formData.timezone}
+                                        onChange={handleChange}
+                                        className="w-full border border-gray-300 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                    >
+                                        {['Asia/Kolkata','Asia/Dubai','Asia/Singapore','Europe/London','Europe/Berlin','America/New_York','America/Los_Angeles','Australia/Sydney','UTC']
+                                            .map((tz) => (<option key={tz} value={tz}>{tz}</option>))}
+                                    </select>
+                                    <div className="flex items-center justify-between mt-2">
+                                        <button type="button" onClick={() => setFormData((p) => ({ ...p, timezone: browserTz }))} className="text-xs text-blue-600 hover:underline">
+                                            Use browser timezone ({browserTz})
+                                        </button>
+                                        <span className="text-xs text-gray-500">Local time now: {localTimePreview || '—'}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

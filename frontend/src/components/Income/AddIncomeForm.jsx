@@ -8,6 +8,10 @@ const AddIncomeForm = ({ onAddIncome, onSubmit, initialValues, submitLabel }) =>
         amount: '',
         date: '',
         icon: '',
+        isRecurring: false,
+        recurrenceType: 'none',
+        customIntervalDays: '',
+        recurUntil: '',
     });
 
     useEffect(() => {
@@ -17,6 +21,10 @@ const AddIncomeForm = ({ onAddIncome, onSubmit, initialValues, submitLabel }) =>
                 amount: initialValues.amount ?? '',
                 date: initialValues.date || '',
                 icon: initialValues.icon || '',
+                isRecurring: !!initialValues.isRecurring,
+                recurrenceType: initialValues.recurrenceType || 'none',
+                customIntervalDays: initialValues.customIntervalDays ?? '',
+                recurUntil: initialValues.recurUntil || '',
             });
         }
     }, [initialValues]);
@@ -57,6 +65,62 @@ const AddIncomeForm = ({ onAddIncome, onSubmit, initialValues, submitLabel }) =>
                 placeholder='Enter Income Date'
                 type='date'
             />
+
+            {/* Recurrence controls */}
+            <div className='mt-4 space-y-3'>
+                <label className='flex items-center gap-2 text-sm'>
+                    <input
+                        type='checkbox'
+                        checked={!!income.isRecurring && income.recurrenceType !== 'none'}
+                        onChange={(e) => {
+                            const checked = e.target.checked;
+                            handleChange('isRecurring', checked);
+                            if (!checked) {
+                                handleChange('recurrenceType', 'none');
+                            } else if (income.recurrenceType === 'none') {
+                                handleChange('recurrenceType', 'monthly');
+                            }
+                        }}
+                    />
+                    Make this a recurring income
+                </label>
+
+                {(income.isRecurring && income.recurrenceType !== 'none') && (
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+                        <div>
+                            <label className='block text-sm mb-1'>Recurrence Type</label>
+                            <select
+                                className='w-full border rounded px-3 py-2'
+                                value={income.recurrenceType}
+                                onChange={(e) => handleChange('recurrenceType', e.target.value)}
+                            >
+                                <option value='weekly'>Weekly</option>
+                                <option value='monthly'>Monthly</option>
+                                <option value='custom'>Custom (days)</option>
+                                <option value='none'>None</option>
+                            </select>
+                        </div>
+
+                        {income.recurrenceType === 'custom' && (
+                            <Input
+                                value={income.customIntervalDays}
+                                onChange={(e) => handleChange('customIntervalDays', e.target.value)}
+                                label='Custom Interval (days)'
+                                placeholder='e.g., 10'
+                                type='number'
+                            />
+                        )}
+
+                        <Input
+                            value={income.recurUntil}
+                            onChange={(e) => handleChange('recurUntil', e.target.value)}
+                            label='Repeat Until (optional)'
+                            placeholder=''
+                            type='date'
+                        />
+                    </div>
+                )}
+            </div>
 
             <div className='flex justify-end mt-6'>
                 <button

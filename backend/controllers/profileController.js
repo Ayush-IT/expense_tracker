@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 // Update user profile
 exports.updateProfile = async (req, res) => {
     try {
-        const { fullName, email, currentPassword, newPassword, profileImageUrl } = req.body;
+        const { fullName, email, currentPassword, newPassword, profileImageUrl, notificationPrefs, timezone } = req.body;
         const userId = req.user.id;
 
         // Find user
@@ -42,6 +42,22 @@ exports.updateProfile = async (req, res) => {
             user.password = newPassword;
         }
 
+        // Update notification preferences (partial updates allowed)
+        if (notificationPrefs && typeof notificationPrefs === 'object') {
+            user.notificationPrefs = {
+                ...user.notificationPrefs?.toObject?.() || user.notificationPrefs || {},
+                ...['emailEnabled','smsEnabled','pushEnabled'].reduce((acc, k) => {
+                    if (notificationPrefs[k] !== undefined) acc[k] = Boolean(notificationPrefs[k]);
+                    return acc;
+                }, {})
+            };
+        }
+
+        // Update timezone
+        if (timezone) {
+            user.timezone = timezone;
+        }
+
         // Save user
         await user.save();
 
@@ -53,7 +69,9 @@ exports.updateProfile = async (req, res) => {
             profileImageUrl: user.profileImageUrl,
             isVerified: user.isVerified,
             createdAt: user.createdAt,
-            updatedAt: user.updatedAt
+            updatedAt: user.updatedAt,
+            notificationPrefs: user.notificationPrefs,
+            timezone: user.timezone
         };
 
         res.status(200).json({

@@ -12,6 +12,7 @@ A full-stack web application built with the MERN stack (MongoDB, Express.js, Rea
   - Profile image upload (now stored securely on Cloudinary)
   - Protected routes
   - JWT token-based authentication
+  - Google OAuth login (one-tap) using Google Identity Services
 
 - 💰 **Dashboard**
 
@@ -38,6 +39,22 @@ A full-stack web application built with the MERN stack (MongoDB, Express.js, Rea
   - Download expense data as Excel file
   - Expense visualization through charts
 
+- 🧾 **Bills Management**
+  - Create, view, update, delete bills
+  - Mark bills as paid, pause/resume a bill
+  - Automatic status updates: `upcoming`, `due_today`, `overdue`
+  - Email reminders at your preferred local hour and days before due date
+
+- 📅 **Recurring Transactions**
+  - Auto-generate recurring incomes and expenses based on recurrence rules (weekly, monthly, custom days)
+
+- 📊 **Budgets**
+  - Create monthly budgets and track spending vs. target
+
+- 👤 **Profile & Preferences**
+  - Update profile info, upload profile image
+  - Configure timezone and notification preferences for accurate reminders
+
 ## Tech Stack
 
 ### Frontend
@@ -63,6 +80,8 @@ A full-stack web application built with the MERN stack (MongoDB, Express.js, Rea
 - XLSX for Excel file generation
 - Bcrypt for password hashing
 - Nodemailer for transactional emails (verification/reset)
+- node-cron for scheduled jobs (recurring transactions, bill reminders)
+- google-auth-library for Google OAuth verification
 
 ## Getting Started
 
@@ -89,7 +108,7 @@ npm install
 ```
 
 3. Configure Environment Variables
-   Create a `.env` file in the backend directory:
+   Create a `.env` file in the `backend/` directory:
 
 ```env
 MONGO_URI=your_mongodb_connection_string
@@ -104,7 +123,12 @@ SMTP_HOST=your_smtp_host
 SMTP_PORT=587
 SMTP_USER=your_smtp_username
 SMTP_PASS=your_smtp_password
-SEND_FROM="Expense Tracker <no-reply@yourdomain.com>"
+SEND_FROM="Expense Tracker <no-reply@yourdomain.com>"  # used by utils/sendEmail.js
+FROM_EMAIL="Expense Tracker <no-reply@yourdomain.com>" # used by services/notificationService.js
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+# Optional scheduler overrides (defaults: dev every minute; prod daily/hourly)
+RECURRING_CRON=* * * * *
+REMINDER_CRON=* * * * *
 ```
 
 4. Install Frontend Dependencies
@@ -148,7 +172,10 @@ The application will be available at `http://localhost:5173`
 │   ├── middleware/
 │   ├── models/
 │   ├── routes/
-│   ├── uploads/
+│   ├── cron/                 # scheduled jobs for recurrence and reminders
+│   ├── services/             # email notification service
+│   ├── utils/                # recurrence utilities, helpers
+│   ├── uploads/              # (legacy) not used when Cloudinary is configured
 │   └── server.js
 └── frontend/
     ├── public/
@@ -172,6 +199,7 @@ The application will be available at `http://localhost:5173`
 - `POST /api/v1/auth/forgot-password` - Send password reset email
 - `POST /api/v1/auth/reset-password` - Reset password using token, email, newPassword
 - `POST /api/v1/auth/upload-image` - Upload profile image (now uploads to Cloudinary)
+- `POST /api/v1/auth/google` - Google OAuth login with `idToken`
 
 ### Income Routes
 
@@ -179,6 +207,7 @@ The application will be available at `http://localhost:5173`
 - `GET /api/v1/income/get` - Get all incomes
 - `DELETE /api/v1/income/:id` - Delete income
 - `GET /api/v1/income/downloadexcel` - Download income data
+- `PUT /api/v1/income/:id` - Update income
 
 ### Expense Routes
 
@@ -186,10 +215,35 @@ The application will be available at `http://localhost:5173`
 - `GET /api/v1/expense/get` - Get all expenses
 - `DELETE /api/v1/expense/:id` - Delete expense
 - `GET /api/v1/expense/downloadexcel` - Download expense data
+- `PUT /api/v1/expense/:id` - Update expense
 
 ### Dashboard Routes
 
 - `GET /api/v1/dashboard` - Get dashboard data
+
+### Budget Routes
+
+- `POST /api/v1/budgets` - Create budget
+- `GET /api/v1/budgets?month=MM&year=YYYY` - Get budgets for a month
+- `PUT /api/v1/budgets/:id` - Update budget
+- `DELETE /api/v1/budgets/:id` - Delete budget
+
+### Profile Routes
+
+- `GET /api/v1/profile` - Get profile
+- `PUT /api/v1/profile/update` - Update profile
+- `POST /api/v1/profile/upload-image` - Upload profile image (Cloudinary)
+
+### Bill Routes
+
+- `POST /api/v1/bills` - Create bill
+- `GET /api/v1/bills` - List bills
+- `GET /api/v1/bills/:id` - Get bill by id
+- `PUT /api/v1/bills/:id` - Update bill
+- `DELETE /api/v1/bills/:id` - Delete bill
+- `POST /api/v1/bills/:id/pay` - Mark bill as paid
+- `POST /api/v1/bills/:id/pause` - Pause reminders/status updates
+- `POST /api/v1/bills/:id/resume` - Resume reminders/status updates
 
 ## Auth Flows
 
@@ -209,6 +263,28 @@ Environment used for links: `APP_BASE_URL` or `CLIENT_URL` (backend falls back a
   - Sends an email with link to `${CLIENT_URL}/auth/reset?token=...&email=...`.
 - __Reset__: `POST /api/v1/auth/reset-password` with body `{ token, email, newPassword }`.
   - Token expires in 1 hour. On success returns message `Password has been reset successfully`.
+
+### Google OAuth Login
+
+- __Login__: `POST /api/v1/auth/google` with body `{ idToken }` from Google Identity Services.
+- Server verifies the token using `google-auth-library` and returns our JWT.
+- First-time users are auto-provisioned and marked verified.
+
+## Cron Jobs & Reminders
+
+- __Recurring Transactions__: A scheduler runs based on `RECURRING_CRON` to auto-create entries from recurring templates in `Income`/`Expense`.
+  - Default dev schedule: every minute.
+  - Default prod schedule: daily at 00:05.
+- __Bill Reminders__: A scheduler runs based on `REMINDER_CRON` to update bill statuses and send reminders.
+  - Default dev schedule: every minute.
+  - Default prod schedule: hourly at minute 5.
+- Configure these in `backend/.env` using standard cron expressions.
+
+### Timezone & Reminder Behavior
+
+- Each bill can specify `timezone` and `remindAtHourLocal` (0–23). If omitted, user profile timezone is used, else defaults to `Asia/Kolkata`.
+- Bill statuses are computed by comparing the local date in the chosen timezone.
+- Reminders are sent on days matching `remindDaysBefore` and every day after due date until paid (at the configured reminder hour).
 
 ## Contributing
 

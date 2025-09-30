@@ -49,7 +49,7 @@ const Income = () => {
  // Handle Update Income
  const handleUpdateIncome = async (updated) => {
   if (!openEditIncomeModal.data) return;
-  const { source, amount, date, icon } = updated;
+  const { source, amount, date, icon, isRecurring, recurrenceType, customIntervalDays, recurUntil } = updated;
 
   // Optional minimal validation
   if (!source?.trim()) return toast.error('Source is required');
@@ -57,7 +57,10 @@ const Income = () => {
   if (!date) return toast.error('Date is required');
 
   try {
-    await axiosInstance.put(API_PATHS.INCOME.UPDATE_INCOME(openEditIncomeModal.data._id), { source, amount, date, icon });
+    await axiosInstance.put(
+      API_PATHS.INCOME.UPDATE_INCOME(openEditIncomeModal.data._id),
+      { source, amount, date, icon, isRecurring, recurrenceType, customIntervalDays, recurUntil }
+    );
     toast.success('Income updated successfully');
     setOpenEditIncomeModal({ show: false, data: null });
     fetchIncomeDetails();
@@ -69,7 +72,7 @@ const Income = () => {
 
  //Handle Add Income
  const handleAddIncome = async (income) => {
-  const {source, amount, date, icon} = income;
+  const {source, amount, date, icon, isRecurring, recurrenceType, customIntervalDays, recurUntil} = income;
 
   //Validation check
   if(!source?.trim()){
@@ -88,7 +91,10 @@ const Income = () => {
   }
 
   try{
-    await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {source, amount, date, icon});
+    await axiosInstance.post(
+      API_PATHS.INCOME.ADD_INCOME,
+      {source, amount, date, icon, isRecurring, recurrenceType, customIntervalDays, recurUntil}
+    );
     fetchIncomeDetails();
     setOpenAddIncomeModal(false);
     toast.success("Income added successfully");

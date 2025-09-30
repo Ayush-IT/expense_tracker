@@ -2,7 +2,8 @@ import React from 'react'
 import {
     LuUtensils,
     LuTrendingUp,
-    LuTrendingDown
+    LuTrendingDown,
+    LuRefreshCcw
 } from 'react-icons/lu';
 
 const DashboardTransactionCard = ({
@@ -10,7 +11,9 @@ const DashboardTransactionCard = ({
     icon,
     date,
     amount,
-    type
+    type,
+    isRecurring,
+    recurrenceType
 }) => {
 
     const getAmountStyles = () => {
@@ -31,6 +34,11 @@ const DashboardTransactionCard = ({
                 <div className='flex-1'>
                     <p className='text-sm text-gray-700 font-medium'>{title}</p>
                     <p className='text-xs text-gray-400 mt-1'>{date}</p>
+                    {isRecurring && (
+                      <p className='text-[10px] text-blue-600 mt-1 inline-flex items-center gap-1'>
+                        <LuRefreshCcw /> Recurring {recurrenceType}
+                      </p>
+                    )}
                 </div>
 
                 {/* Money amount - right-aligned on all screen sizes */}

@@ -11,6 +11,9 @@ const expenseRoutes = require("./routes/expenseRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const { initRecurringJobs } = require('./cron/recurringJobs');
+const billRoutes = require("./routes/billRoutes");
+const { initBillReminderJobs } = require('./cron/billReminders');
 
 const app = express();
 
@@ -42,11 +45,15 @@ app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/budgets", budgetRoutes);
 app.use("/api/v1/profile", profileRoutes);
+app.use("/api/v1/bills", billRoutes);
 
 // Start server only after DB is connected
 const startServer = async () => {
   try {
     await connectDB();
+    // Initialize cron jobs (after DB is ready)
+    initRecurringJobs();
+    initBillReminderJobs();
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

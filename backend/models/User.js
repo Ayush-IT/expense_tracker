@@ -44,6 +44,13 @@ const UserSchema = new mongoose.Schema({
         default: null,
         select: false,
     },
+    // Notification preferences and timezone
+    notificationPrefs: {
+        emailEnabled: { type: Boolean, default: true },
+        smsEnabled: { type: Boolean, default: false },
+        pushEnabled: { type: Boolean, default: false },
+    },
+    timezone: { type: String, default: 'Asia/Kolkata' },
 }, { timestamps: true }); 
 
 

@@ -16,6 +16,10 @@ const AddTransactionModal = ({ isOpen, onClose, defaultType = 'expense', onSucce
     amount: '',
     date: todayDate(),
     icon: '',
+    isRecurring: false,
+    recurrenceType: 'none', // 'weekly' | 'monthly' | 'custom'
+    customIntervalDays: '',
+    recurUntil: ''
   });
   const [loading, setLoading] = useState(false);
 
@@ -28,6 +32,8 @@ const AddTransactionModal = ({ isOpen, onClose, defaultType = 'expense', onSucce
     category: 'Category',
     amount: 'Amount',
     date: 'Date',
+    recurrenceType: 'Recurrence Type',
+    customIntervalDays: 'Custom Interval (days)'
   };
 
   const handleBlur = (key) => {
@@ -38,7 +44,7 @@ const AddTransactionModal = ({ isOpen, onClose, defaultType = 'expense', onSucce
   };
 
   const reset = () => {
-    setForm({ source: '', category: '', amount: '', date: todayDate(), icon: '' });
+    setForm({ source: '', category: '', amount: '', date: todayDate(), icon: '', isRecurring: false, recurrenceType: 'none', customIntervalDays: '', recurUntil: '' });
     setLoading(false);
   };
 
@@ -61,16 +67,28 @@ const AddTransactionModal = ({ isOpen, onClose, defaultType = 'expense', onSucce
           amount: Number(form.amount),
           date: form.date || new Date(),
           icon: form.icon || '',
+          ...(form.isRecurring && form.recurrenceType !== 'none' ? {
+            isRecurring: true,
+            recurrenceType: form.recurrenceType,
+            customIntervalDays: form.recurrenceType === 'custom' ? Number(form.customIntervalDays || 0) : undefined,
+            recurUntil: form.recurUntil || undefined,
+          } : {})
         };
-  await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, payload);
+        await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, payload);
       } else {
         const payload = {
           source: form.source || 'Income',
           amount: Number(form.amount),
           date: form.date || new Date(),
           icon: form.icon || '',
+          ...(form.isRecurring && form.recurrenceType !== 'none' ? {
+            isRecurring: true,
+            recurrenceType: form.recurrenceType,
+            customIntervalDays: form.recurrenceType === 'custom' ? Number(form.customIntervalDays || 0) : undefined,
+            recurUntil: form.recurUntil || undefined,
+          } : {})
         };
-  await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, payload);
+        await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, payload);
       }
 
       reset();
@@ -151,6 +169,51 @@ const AddTransactionModal = ({ isOpen, onClose, defaultType = 'expense', onSucce
             placeholder='Enter Date'
             type='date'
           />
+
+          {/* Recurring controls */}
+          <div className="p-3 border rounded-lg space-y-3">
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={form.isRecurring} onChange={(e) => handleChange('isRecurring', e.target.checked)} />
+              Make this a recurring {type}
+            </label>
+            {form.isRecurring && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Recurrence</label>
+                    <select
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      value={form.recurrenceType}
+                      onChange={(e) => handleChange('recurrenceType', e.target.value)}
+                    >
+                      <option value="none">Select</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="custom">Custom (days)</option>
+                    </select>
+                  </div>
+                  {form.recurrenceType === 'custom' && (
+                    <Input
+                      value={form.customIntervalDays}
+                      onChange={(e) => handleChange('customIntervalDays', e.target.value)}
+                      onBlur={() => handleBlur('customIntervalDays')}
+                      label="Custom Interval (days)"
+                      placeholder="e.g. 10"
+                      type="number"
+                    />
+                  )}
+                  <Input
+                    value={form.recurUntil}
+                    onChange={(e) => handleChange('recurUntil', e.target.value)}
+                    label="Repeat Until (optional)"
+                    placeholder=""
+                    type="date"
+                  />
+                </div>
+                <p className="text-xs text-gray-500">Next occurrence will be scheduled based on the selected date.</p>
+              </>
+            )}
+          </div>
 
           <div className='flex justify-end mt-6'>
             <button

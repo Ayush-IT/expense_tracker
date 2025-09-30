@@ -77,7 +77,8 @@ import {
   LuTrendingUp,
   LuTrendingDown,
   LuTrash2,
-  LuPencil
+  LuPencil,
+  LuRefreshCcw
 } from 'react-icons/lu';
 
 
@@ -88,6 +89,8 @@ const TransactionInfoCard = (
     date,
     amount,
     type,
+    isRecurring,
+    recurrenceType,
     hideDeleteBtn,
     onDelete,
     onEdit
@@ -112,6 +115,11 @@ const TransactionInfoCard = (
         <div>
           <p className='text-sm text-gray-700 font-medium'>{title}</p>
           <p className='text-xs text-gray-400 mt-1'>{date}</p>
+          {isRecurring && (
+            <p className='text-[10px] text-blue-600 mt-1 inline-flex items-center gap-1'>
+              <LuRefreshCcw /> Recurring {recurrenceType}
+            </p>
+          )}
 
           {/* Money amount below date - only on mobile */}
           <div className={`md:hidden flex items-center gap-2 px-3 py-1.5 rounded-md mt-2 ${getAmountStyles()}`}>

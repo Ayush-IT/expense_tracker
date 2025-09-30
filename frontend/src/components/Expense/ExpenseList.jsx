@@ -42,6 +42,8 @@ const ExpenseList = ({ transactions, onDelete, onDownload, onAdd, onEdit }) => {
               date={moment(expense.date).format('Do MMM YYYY')}
               amount={expense.amount}
               type="expense"
+              isRecurring={expense.isRecurring}
+              recurrenceType={expense.recurrenceType}
               onDelete={() => onDelete(expense._id)}
               onEdit={onEdit ? () => onEdit(expense) : undefined}
             />

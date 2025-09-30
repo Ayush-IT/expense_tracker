@@ -17,6 +17,7 @@ import Income from './pages/Dashboard/Income'
 import Expense from './pages/Dashboard/Expense'
 import Budgets from './pages/Dashboard/Budgets'
 import Profile from './pages/Dashboard/Profile'
+import Bills from './pages/Dashboard/Bills'
 import UserProvider from './context/UserContext';
 import { Toaster } from 'react-hot-toast';
 
@@ -36,6 +37,7 @@ const App = () => {
             <Route path="/income" exact element={<Income />} />
             <Route path="/expense" exact element={<Expense />} />
             <Route path="/budgets" exact element={<Budgets />} />
+            <Route path="/bills" exact element={<Bills />} />
             <Route path="/profile" exact element={<Profile />} />
           </Routes>
         </Router>

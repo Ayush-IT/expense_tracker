@@ -1,4 +1,4 @@
-export const BASE_URL = import.meta.env.VITE_BASE_URL;
+export const BASE_URL = 'https://expense-tracker-backend-sigma-two.vercel.app';
 
 
 //utils/apiPaths.js
@@ -42,5 +42,14 @@ export const API_PATHS = {
       UPDATE_PROFILE: "/api/v1/profile/update",
       UPLOAD_PROFILE_IMAGE: "/api/v1/profile/upload-image",
    },
+   BILLS: {
+      CREATE: "/api/v1/bills",
+      LIST: "/api/v1/bills",
+      GET: (id) => `/api/v1/bills/${id}`,
+      UPDATE: (id) => `/api/v1/bills/${id}`,
+      DELETE: (id) => `/api/v1/bills/${id}`,
+      PAY: (id) => `/api/v1/bills/${id}/pay`,
+      PAUSE: (id) => `/api/v1/bills/${id}/pause`,
+      RESUME: (id) => `/api/v1/bills/${id}/resume`,
+   },
 };
-

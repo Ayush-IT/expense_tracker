@@ -43,6 +43,8 @@ const IncomeList = ({ transactions, onDelete, onDownload, onAdd, onEdit }) => {
               date={moment(income.date).format('Do MMM YYYY')}
               amount={income.amount}
               type="income"
+              isRecurring={income.isRecurring}
+              recurrenceType={income.recurrenceType}
               onDelete={() => onDelete(income._id)}
               onEdit={onEdit ? () => onEdit(income) : undefined}
             />

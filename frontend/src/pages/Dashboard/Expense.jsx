@@ -52,14 +52,17 @@ const Expense = () => {
  // Handle Update Expense
  const handleUpdateExpense = async (updated) => {
   if (!openEditExpenseModal.data) return;
-  const { category, amount, date, icon } = updated;
+  const { category, amount, date, icon, isRecurring, recurrenceType, customIntervalDays, recurUntil } = updated;
 
   if (!category?.trim()) return toast.error('Category is required');
   if (!amount || isNaN(amount) || Number(amount) <= 0) return toast.error('Amount should be a valid number greater than 0');
   if (!date) return toast.error('Date is required');
 
   try {
-    await axiosInstance.put(API_PATHS.EXPENSE.UPDATE_EXPENSE(openEditExpenseModal.data._id), { category, amount, date, icon });
+    await axiosInstance.put(
+      API_PATHS.EXPENSE.UPDATE_EXPENSE(openEditExpenseModal.data._id),
+      { category, amount, date, icon, isRecurring, recurrenceType, customIntervalDays, recurUntil }
+    );
     toast.success('Expense updated successfully');
     setOpenEditExpenseModal({ show: false, data: null });
     fetchExpenseDetails();
@@ -71,7 +74,7 @@ const Expense = () => {
 
  //Handle Add Expense
  const handleAddExpense = async (expense) => {
-  const {category, amount, date, icon} = expense;
+  const {category, amount, date, icon, isRecurring, recurrenceType, customIntervalDays, recurUntil} = expense;
 
   //Validation check
   if(!category?.trim()){
@@ -90,7 +93,10 @@ const Expense = () => {
   }
 
   try{
-    await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, {category, amount, date, icon});
+    await axiosInstance.post(
+      API_PATHS.EXPENSE.ADD_EXPENSE,
+      {category, amount, date, icon, isRecurring, recurrenceType, customIntervalDays, recurUntil}
+    );
     fetchExpenseDetails();
     setOpenAddExpenseModal(false);
     toast.success("Expense added successfully");

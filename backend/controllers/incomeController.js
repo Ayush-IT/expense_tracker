@@ -3,11 +3,13 @@ const xlsx = require('xlsx');
 const Income = require('../models/Income');
 
 
+const { computeNextRun } = require('../utils/recurrence');
+
 exports.addIncome = async (req, res) => {
     const userId = req.user._id;
 
     try {
-        const { icon, source, amount, date } = req.body;
+        const { icon, source, amount, date, isRecurring = false, recurrenceType = 'none', customIntervalDays = null, recurUntil = null } = req.body;
 
         if(!source || !amount || !date) {
             return res.status(400).json({
@@ -16,12 +18,19 @@ exports.addIncome = async (req, res) => {
             });
         }
 
+        const nextRun = (isRecurring && recurrenceType !== 'none') ? computeNextRun(date || new Date(), recurrenceType, customIntervalDays) : null;
+
         const newIncome = new Income({
             userId,
             icon,
             source,
             amount,
-            date: new Date(date)
+            date: new Date(date),
+            isRecurring: Boolean(isRecurring),
+            recurrenceType,
+            customIntervalDays,
+            nextRunAt: nextRun,
+            recurUntil
         });
 
         await newIncome.save();
@@ -86,7 +95,7 @@ exports.updateIncome = async (req, res) => {
     const incomeId = req.params.id;
 
     try {
-        const { icon, source, amount, date } = req.body;
+        const { icon, source, amount, date, isRecurring, recurrenceType, customIntervalDays, recurUntil } = req.body;
 
         // Build update object only with provided fields
         const update = {};
@@ -94,6 +103,45 @@ exports.updateIncome = async (req, res) => {
         if (source !== undefined) update.source = source;
         if (amount !== undefined) update.amount = amount;
         if (date !== undefined) update.date = new Date(date);
+
+        // Recurring logic
+        const hasRecurringFields = (
+            isRecurring !== undefined ||
+            recurrenceType !== undefined ||
+            customIntervalDays !== undefined ||
+            recurUntil !== undefined
+        );
+
+        if (hasRecurringFields) {
+            const toggleOn = Boolean(isRecurring) && recurrenceType && recurrenceType !== 'none';
+
+            if (toggleOn) {
+                update.isRecurring = true;
+                update.recurrenceType = recurrenceType;
+                update.customIntervalDays = recurrenceType === 'custom' ? (customIntervalDays ?? null) : null;
+                update.recurUntil = recurUntil ?? null;
+
+                const baseDate = date ? new Date(date) : undefined;
+                const existing = await Income.findOne({ _id: incomeId, userId }, { date: 1, recurrenceType: 1, customIntervalDays: 1 });
+                const base = baseDate || existing?.date || new Date();
+                const { computeNextRun } = require('../utils/recurrence');
+                update.nextRunAt = computeNextRun(base, recurrenceType, update.customIntervalDays);
+            } else {
+                if (isRecurring === false || recurrenceType === 'none') {
+                    update.isRecurring = false;
+                    update.recurrenceType = 'none';
+                    update.customIntervalDays = null;
+                    update.nextRunAt = null;
+                    update.recurUntil = null;
+                }
+            }
+        } else if (date !== undefined) {
+            const existing = await Income.findOne({ _id: incomeId, userId }, { isRecurring: 1, recurrenceType: 1, customIntervalDays: 1 });
+            if (existing?.isRecurring && existing?.recurrenceType && existing.recurrenceType !== 'none') {
+                const { computeNextRun } = require('../utils/recurrence');
+                update.nextRunAt = computeNextRun(new Date(date), existing.recurrenceType, existing.customIntervalDays);
+            }
+        }
 
         if (Object.keys(update).length === 0) {
             return res.status(400).json({

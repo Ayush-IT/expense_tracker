@@ -3,11 +3,13 @@ const xlsx = require('xlsx');
 const Expense = require('../models/Expense');
 
 
+const { computeNextRun } = require('../utils/recurrence');
+
 exports.addExpense = async (req, res) => {
     const userId = req.user._id;
 
     try {
-        const { icon, category, amount, date } = req.body;
+        const { icon, category, amount, date, isRecurring = false, recurrenceType = 'none', customIntervalDays = null, recurUntil = null } = req.body;
 
         if(!category || !amount || !date) {
             return res.status(400).json({
@@ -16,12 +18,19 @@ exports.addExpense = async (req, res) => {
             });
         }
 
+        const nextRun = (isRecurring && recurrenceType !== 'none') ? computeNextRun(date || new Date(), recurrenceType, customIntervalDays) : null;
+
         const newExpense = new Expense({
             userId,
             icon,
             category,
             amount,
-            date: new Date(date)
+            date: new Date(date),
+            isRecurring: Boolean(isRecurring),
+            recurrenceType,
+            customIntervalDays,
+            nextRunAt: nextRun,
+            recurUntil
         });
 
         await newExpense.save();
@@ -86,13 +95,56 @@ exports.updateExpense = async (req, res) => {
     const expenseId = req.params.id;
 
     try {
-        const { icon, category, amount, date } = req.body;
+        const { icon, category, amount, date, isRecurring, recurrenceType, customIntervalDays, recurUntil } = req.body;
 
         const update = {};
         if (icon !== undefined) update.icon = icon;
         if (category !== undefined) update.category = category;
         if (amount !== undefined) update.amount = amount;
         if (date !== undefined) update.date = new Date(date);
+
+        // Recurring logic
+        const hasRecurringFields = (
+            isRecurring !== undefined ||
+            recurrenceType !== undefined ||
+            customIntervalDays !== undefined ||
+            recurUntil !== undefined
+        );
+
+        if (hasRecurringFields) {
+            // Normalize toggles
+            const toggleOn = Boolean(isRecurring) && recurrenceType && recurrenceType !== 'none';
+
+            if (toggleOn) {
+                update.isRecurring = true;
+                update.recurrenceType = recurrenceType;
+                update.customIntervalDays = recurrenceType === 'custom' ? (customIntervalDays ?? null) : null;
+                update.recurUntil = recurUntil ?? null;
+
+                // Recompute nextRunAt based on provided date (or existing one below)
+                const baseDate = date ? new Date(date) : undefined;
+                const existing = await Expense.findOne({ _id: expenseId, userId }, { date: 1, recurrenceType: 1, customIntervalDays: 1 });
+                const base = baseDate || existing?.date || new Date();
+                const { computeNextRun } = require('../utils/recurrence');
+                update.nextRunAt = computeNextRun(base, recurrenceType, update.customIntervalDays);
+            } else {
+                // Disable recurrence
+                if (isRecurring === false || recurrenceType === 'none') {
+                    update.isRecurring = false;
+                    update.recurrenceType = 'none';
+                    update.customIntervalDays = null;
+                    update.nextRunAt = null;
+                    update.recurUntil = null;
+                }
+            }
+        } else if (date !== undefined) {
+            // If only date changed and recurrence is active, recompute nextRunAt
+            const existing = await Expense.findOne({ _id: expenseId, userId }, { isRecurring: 1, recurrenceType: 1, customIntervalDays: 1 });
+            if (existing?.isRecurring && existing?.recurrenceType && existing.recurrenceType !== 'none') {
+                const { computeNextRun } = require('../utils/recurrence');
+                update.nextRunAt = computeNextRun(new Date(date), existing.recurrenceType, existing.customIntervalDays);
+            }
+        }
 
         if (Object.keys(update).length === 0) {
             return res.status(400).json({

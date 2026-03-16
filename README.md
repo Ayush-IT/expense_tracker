@@ -1,4 +1,4 @@
-# Expense Tracker Web Application
+# FinTrack – Personal Finance Management Platform
 
 A full-stack web application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) for tracking personal finances, income, and expenses. Now supports persistent, secure image uploads via Cloudinary cloud storage.
 
